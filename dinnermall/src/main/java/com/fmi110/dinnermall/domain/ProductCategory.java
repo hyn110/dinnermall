@@ -22,6 +22,7 @@ public class ProductCategory implements Serializable{
     @Id@Column(name = "category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 自动增长
     private Integer categoryId;
+    /**热销榜,男生最爱榜*/
     @Column(name = "category_name")
     private String categoryName;
     @Column(name = "category_type")

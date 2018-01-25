@@ -59,6 +59,12 @@ public interface IProductService {
     ProductInfo offSale(String productId);
 
     /**
+     * 查询所有上架的商品
+     * @return
+     */
+    List<ProductInfo> findAllProductsOnSale();
+
+    /**
      * 加库存
      */
 

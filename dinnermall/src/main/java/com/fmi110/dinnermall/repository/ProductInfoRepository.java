@@ -1,8 +1,6 @@
 package com.fmi110.dinnermall.repository;
 
 import com.fmi110.dinnermall.domain.ProductInfo;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -20,6 +18,13 @@ public interface ProductInfoRepository extends JpaRepository<ProductInfo,String>
      * @return
      */
     List<ProductInfo> findByProductStatus(Integer status);
+
+    /**
+     * 查询所有上架商品
+     * @param status
+     * @return
+     */
+    List<ProductInfo> findAllByProductStatus(Integer status);
 
     /**
      * 分页查找所有在架商品

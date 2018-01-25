@@ -1,6 +1,9 @@
 package com.fmi110.dinnermall.VO;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author fmi110
@@ -8,6 +11,9 @@ import lombok.Data;
  * @Date 2018/1/25 17:54
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResultVO<T> {
     /**结果码*/
     private int code;

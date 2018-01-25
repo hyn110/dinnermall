@@ -112,4 +112,14 @@ public class ProductService implements IProductService {
         productInfo.setProductStatus(ProductStatusEnum.DOWN.getCode());
         return repository.save(productInfo);
     }
+
+    /**
+     * 查询所有上架的商品
+     *
+     * @return
+     */
+    @Override
+    public List<ProductInfo> findAllProductsOnSale() {
+        return repository.findAllByProductStatus(ProductStatusEnum.UP.getCode());
+    }
 }

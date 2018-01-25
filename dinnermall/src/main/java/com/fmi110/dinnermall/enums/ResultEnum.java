@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @Getter
 public enum ResultEnum {
-    SUCCESS(0,"成功"),
+    SUCCESS(200,"成功"),
 
     PRODUCT_NOT_EXIST(10,"商品不存在"),
     PRODUCT_STATUS_SAME(11,"当前商品状态无需修改")
