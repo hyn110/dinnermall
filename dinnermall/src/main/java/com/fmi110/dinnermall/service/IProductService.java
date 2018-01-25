@@ -1,6 +1,7 @@
 package com.fmi110.dinnermall.service;
 
 import com.fmi110.dinnermall.domain.ProductInfo;
+import com.fmi110.dinnermall.dto.CartDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -63,6 +64,19 @@ public interface IProductService {
      * @return
      */
     List<ProductInfo> findAllProductsOnSale();
+
+    /**
+     * 根据商品Id查询商品
+     * @param productId
+     * @return
+     */
+    ProductInfo findOne(String productId);
+
+    /**
+     * 扣指定商品的库存
+     * @param cartDTOS
+     */
+    void decreaseStock(List<CartDTO> cartDTOS);
 
     /**
      * 加库存

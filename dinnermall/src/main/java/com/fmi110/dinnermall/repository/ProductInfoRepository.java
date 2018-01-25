@@ -2,6 +2,7 @@ package com.fmi110.dinnermall.repository;
 
 import com.fmi110.dinnermall.domain.ProductInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -41,4 +42,12 @@ public interface ProductInfoRepository extends JpaRepository<ProductInfo,String>
      */
     @Query(value="select count(*) from product_info where product_status=0",nativeQuery = true)
     Integer getTotalOnSale();
+
+    /**
+     * 扣库存
+     */
+    @Modifying
+    @Query(value = "UPDATE product_info SET product_stock=product_stock-?2 WHERE product_id=?1 AND product_stock>=?2",nativeQuery = true)
+    Integer decreaseStock(String productId, Integer count);
+
 }

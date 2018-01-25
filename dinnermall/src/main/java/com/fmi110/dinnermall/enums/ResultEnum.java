@@ -9,15 +9,15 @@ import lombok.Getter;
  */
 @Getter
 public enum ResultEnum {
-    SUCCESS(200,"成功"),
+    SUCCESS(200, "成功"),
 
-    PRODUCT_NOT_EXIST(10,"商品不存在"),
-    PRODUCT_STATUS_SAME(11,"当前商品状态无需修改")
+    PRODUCT_NOT_EXIST(10, "商品不存在"),
+    PRODUCT_STATUS_SAME(11, "当前商品状态无需修改"),
 
-    ;
+    STOCK_NOT_ENOUGH(12, "商品库存不足");
 
     private Integer code;
-    private String message;
+    private String  message;
 
     ResultEnum(Integer code, String message) {
         this.code = code;

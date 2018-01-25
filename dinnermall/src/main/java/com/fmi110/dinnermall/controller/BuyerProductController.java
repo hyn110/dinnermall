@@ -45,6 +45,9 @@ public class BuyerProductController {
                                                           .distinct()
                                                           .collect(Collectors.toList());
         // 3 获取已上架商品对应的所有类名
+        /**
+         * 用到了 select * from tableName in (xx,xx,xx) 语法,减少数据库的交互次数
+         */
         List<ProductCategory> categoryTypes = categoryService.findByCategoryTypeIn(categoryTypeList);
 
         // 4 开始封装返回前端的展示数据 : 对商品进行分类

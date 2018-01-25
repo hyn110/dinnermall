@@ -1,6 +1,7 @@
 package com.fmi110.dinnermall.service.impl;
 
 import com.fmi110.dinnermall.domain.ProductInfo;
+import com.fmi110.dinnermall.dto.CartDTO;
 import com.fmi110.dinnermall.enums.ProductStatusEnum;
 import com.fmi110.dinnermall.enums.ResultEnum;
 import com.fmi110.dinnermall.exception.SellException;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -121,5 +123,52 @@ public class ProductService implements IProductService {
     @Override
     public List<ProductInfo> findAllProductsOnSale() {
         return repository.findAllByProductStatus(ProductStatusEnum.UP.getCode());
+    }
+
+    /**
+     * 根据商品Id查询商品
+     *
+     * @param productId
+     * @return
+     */
+    @Override
+    public ProductInfo findOne(String productId) {
+        return repository.findOne(productId);
+    }
+
+    /**
+     * 扣指定商品的库存
+     *
+     * @param cartDTOS
+     */
+    @Transactional
+    @Override
+    public void decreaseStock(List<CartDTO> cartDTOS) {
+        // 遍历扣库存
+        cartDTOS.forEach(dto->{
+            // 1 确定商品存在
+            // 2 判断库存是否充足
+            // 3 扣库存
+            ProductInfo productInfo = repository.findOne(dto.getProductId());
+            if (null == productInfo) {
+                throw new SellException(ResultEnum.PRODUCT_NOT_EXIST);
+            }
+            int stock = productInfo.getProductStock() - dto.getProductQuantity();
+            if (stock < 0) {
+                throw new SellException(ResultEnum.STOCK_NOT_ENOUGH);
+            }
+            productInfo.setProductStock(stock);
+            repository.save(productInfo);
+        });
+    }
+
+    public static void main(String[] arg){
+        String[] array = {"a", "b", "c"};
+        List<String> list = Arrays.asList(array);
+        list.forEach(e->{
+            String a = e + "===";
+            System.out.println(a);
+            throw new RuntimeException("抛异常");
+        });
     }
 }

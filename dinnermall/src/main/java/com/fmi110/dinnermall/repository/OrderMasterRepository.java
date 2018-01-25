@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * @author fmi110
  * @Description: 订单主表操作明细
@@ -12,10 +14,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface OrderMasterRepository extends JpaRepository<OrderMaster,String> {
     /**
-     * 根据用户微信号 openID 查询订单 , 按订单创建时间降序排列
+     * 根据用户微信号 openID 查询订单分页 , 按订单创建时间降序排列
      * @param buyerOpenId
      * @param pageable 分页信息
      * @return
      */
     Page<OrderMaster> findByBuyerOpenid(String buyerOpenId, Pageable pageable);
+
+    /**
+     * 查询用户所有订单,按创建时间降序
+     */
+    List<OrderMaster> findByBuyerOpenidOrderByCreateTimeDesc(String openId);
 }
