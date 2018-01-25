@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
@@ -12,11 +13,13 @@ import java.sql.Timestamp;
  * @Description: 订单主表
  * @Date 2018/1/25 10:43
  */
+@Builder
+@NoArgsConstructor@AllArgsConstructor
 @Data
 @Entity
 @Table(name = "order_master")
 @DynamicUpdate
-public class OrderMaster {
+public class OrderMaster implements Serializable{
     @Id@Column(name = "order_id")
     private String orderId;
     @Column(name = "buyer_name")
