@@ -23,7 +23,15 @@ public interface IOrderService {
      * 支付订单
      */
     OrderDTO pay(OrderDTO orderDTO);
-    /**取消订单*/
+    /**
+     * 取消订单 :
+     * <p>1 判断订单状态</p>
+     * <p>2 修改订单状态</p>
+     * <p>3 已付款订单,执行退款逻辑</p>
+     * <p>4 库存还原</p>
+     *
+     * @param orderDTO
+     */
     OrderDTO cancel(OrderDTO orderDTO);
     /**完结订单*/
     OrderDTO finish(OrderDTO orderDTO);

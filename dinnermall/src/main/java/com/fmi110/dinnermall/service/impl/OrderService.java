@@ -15,6 +15,7 @@ import com.fmi110.dinnermall.repository.OrderMasterRepository;
 import com.fmi110.dinnermall.repository.ProductInfoRepository;
 import com.fmi110.dinnermall.service.IOrderService;
 import com.fmi110.dinnermall.service.IProductService;
+import com.fmi110.dinnermall.utils.JsonUtils;
 import com.fmi110.dinnermall.utils.KeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -97,7 +98,7 @@ public class OrderService implements IOrderService {
                                              .collect(Collectors.toList());
         productService.decreaseStock(cartDTOS);
 
-        return null;
+        return orderDTO;
     }
 
     /**
@@ -105,19 +106,60 @@ public class OrderService implements IOrderService {
      *
      * @param orderDTO
      */
+    @Transactional
     @Override
     public OrderDTO pay(OrderDTO orderDTO) {
+        //TODO:支付订单
         return null;
     }
 
     /**
-     * 取消订单
+     * 取消订单 :
+     * <p>1 判断订单是否存在</p>
+     * <p>2 判断订单状态:已取消,已完结的不可取消</p>
+     * <p>3 修改订单状态为取消</p>
+     * <p>4 库存还原</p>
+     * <p>5 判断支付状态,如果已付款,执行退款逻辑</p>
      *
      * @param orderDTO
      */
+    @Transactional
     @Override
     public OrderDTO cancel(OrderDTO orderDTO) {
-        return null;
+        //1
+        OrderMaster order = orderMasterRepository.findOne(orderDTO.getOrderId());
+        if (null == order) {
+            log.error("[取消订单]订单不存在,{}", JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
+        }
+        //2
+        if (order.getOrderStatus()
+                 .equals(OrderStatusEnum.CANCEL) || order.getOrderStatus()
+                                                         .equals(OrderStatusEnum.FINISHED)) {
+            log.error("[取消订单]订单状态不正确,{}", JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
+        }
+        //3
+        order.setOrderStatus(OrderStatusEnum.CANCEL.getStatus());
+        //4
+        if (CollectionUtils.isEmpty(orderDTO.getOrderDetails())) {
+            log.error("[取消订单]没有订单明细,{}", JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDERDETAIL_NOT_EXIST);
+        }
+        // 修改库存是通过 cartDTO 实现的,所以这里需要把 orderDTO --> CartDTO
+        List<CartDTO> list = orderDTO.getOrderDetails()
+                                        .stream()
+                                        .map(e -> new CartDTO(e.getProductId(), e.getProductQuantity()))
+                                        .collect(Collectors.toList());
+        productService.increaseStock(list);
+
+        //5
+        if (PayStatusEnum.PAYED.getStatus()
+                               .equals(order.getPayStatus())) {
+            // TODO:执行退款
+        }
+        BeanUtils.copyProperties(order,orderDTO);
+        return orderDTO;
     }
 
     /**
@@ -125,8 +167,10 @@ public class OrderService implements IOrderService {
      *
      * @param orderDTO
      */
+    @Transactional
     @Override
     public OrderDTO finish(OrderDTO orderDTO) {
+        //TODO:完成订单
         return null;
     }
 

@@ -13,10 +13,11 @@ public enum ResultEnum {
 
     PRODUCT_NOT_EXIST(10, "商品不存在"),
     PRODUCT_STATUS_SAME(11, "当前商品状态无需修改"),
-
     STOCK_NOT_ENOUGH(12, "商品库存不足"),
-    ORDER_NOT_EXIST(13, "订单不存在"),
-    ORDERDETAIL_NOT_EXIST(14, "订单详情不存在");
+
+    ORDER_NOT_EXIST(21, "订单不存在"),
+    ORDERDETAIL_NOT_EXIST(22, "订单详情不存在"),
+    ORDER_STATUS_ERROR(23, "订单状态不正确");
 
     private Integer code;
     private String  message;

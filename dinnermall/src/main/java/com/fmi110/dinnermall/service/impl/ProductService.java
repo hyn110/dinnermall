@@ -7,6 +7,8 @@ import com.fmi110.dinnermall.enums.ResultEnum;
 import com.fmi110.dinnermall.exception.SellException;
 import com.fmi110.dinnermall.repository.ProductInfoRepository;
 import com.fmi110.dinnermall.service.IProductService;
+import com.fmi110.dinnermall.utils.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import java.util.List;
  */
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class ProductService implements IProductService {
 
     @Autowired
@@ -151,14 +154,35 @@ public class ProductService implements IProductService {
             // 3 扣库存
             ProductInfo productInfo = repository.findOne(dto.getProductId());
             if (null == productInfo) {
+                log.error("[扣库存]商品不存在 : {}", JsonUtils.toJson(dto));
                 throw new SellException(ResultEnum.PRODUCT_NOT_EXIST);
             }
             int stock = productInfo.getProductStock() - dto.getProductQuantity();
             if (stock < 0) {
+                log.error("[扣库存]库存不足,库存 :{},需扣除{}",productInfo.getProductStock() , dto.getProductQuantity());
                 throw new SellException(ResultEnum.STOCK_NOT_ENOUGH);
             }
             productInfo.setProductStock(stock);
             repository.save(productInfo);
+        });
+    }
+
+    /**
+     * 增加库存
+     * <p>1 确定商品存在</p>
+     * <p>2 修改库存</p>
+     * @param cartDTOS
+     */
+    @Override
+    public void increaseStock(List<CartDTO> cartDTOS) {
+        cartDTOS.forEach((CartDTO c) ->{
+            ProductInfo product = repository.findOne(c.getProductId());
+            if (product == null) {
+                log.error("[加库存]商品不存在 : {}", JsonUtils.toJson(c));
+                throw new SellException(ResultEnum.PRODUCT_NOT_EXIST);
+            }
+            product.setProductStock(product.getProductStock()+c.getProductQuantity());
+            repository.save(product);
         });
     }
 

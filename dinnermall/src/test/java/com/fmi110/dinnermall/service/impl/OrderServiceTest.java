@@ -2,6 +2,7 @@ package com.fmi110.dinnermall.service.impl;
 
 import com.fmi110.dinnermall.domain.OrderDetail;
 import com.fmi110.dinnermall.dto.OrderDTO;
+import com.fmi110.dinnermall.repository.OrderDetailRepository;
 import com.fmi110.dinnermall.service.IOrderService;
 import com.fmi110.dinnermall.utils.JsonUtils;
 import org.junit.Test;
@@ -23,6 +24,8 @@ import java.util.List;
 public class OrderServiceTest {
     @Autowired
     IOrderService service;
+    @Autowired
+    OrderDetailRepository orderDetailRepository;
     @Test
     public void create() throws Exception {
 //        OrderDTO orderDTO = new OrderDTO();
@@ -59,6 +62,15 @@ public class OrderServiceTest {
         List<OrderDTO> list = service.findAllOrdersByBuyerOpenId("666");
 //        list.forEach(e-> System.out.println(JsonUtils.toJson(e)));
         System.out.println(JsonUtils.toJson(list));
+    }
+
+    @Test
+    public void cancel(){
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setOrderId("5e93dffa79f4f773d6_1516931908000");
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderDTO.getOrderId());
+        orderDTO.setOrderDetails(orderDetails);
+        service.cancel(orderDTO);
     }
 
 }
