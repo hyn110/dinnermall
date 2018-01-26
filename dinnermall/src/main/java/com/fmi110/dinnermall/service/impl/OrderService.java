@@ -29,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -109,8 +108,20 @@ public class OrderService implements IOrderService {
     @Transactional
     @Override
     public OrderDTO pay(OrderDTO orderDTO) {
-        //TODO:支付订单
-        return null;
+        OrderMaster order = orderMasterRepository.findOne(orderDTO.getOrderId());
+        if (null == order) {
+            log.error("[取消订单]订单不存在,{}", JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
+        }
+        if (!order.getPayStatus()
+                 .equals(PayStatusEnum.NOT_PAY)) {
+            log.error("[支付订单]订支付状态不对 : {}",JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDER_PAY_STATUS_ERROR);
+        }
+        //TODO:支付订单,支付成功后修改状态
+        order.setPayStatus(PayStatusEnum.PAYED.getStatus());
+        BeanUtils.copyProperties(order,orderDTO);
+        return orderDTO;
     }
 
     /**
@@ -164,14 +175,27 @@ public class OrderService implements IOrderService {
 
     /**
      * 完结订单
+     * <p>1 判断订单状态,非取消订单能完结</p>
+     * <p>2 修改订单状态</p>
      *
      * @param orderDTO
      */
     @Transactional
     @Override
     public OrderDTO finish(OrderDTO orderDTO) {
-        //TODO:完成订单
-        return null;
+        OrderMaster order = orderMasterRepository.findOne(orderDTO.getOrderId());
+        if (null == order) {
+            log.error("[取消订单]订单不存在,{}", JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
+        }
+        if (order.getOrderStatus()
+                 .equals(OrderStatusEnum.CANCEL)) {
+            log.error("[订单完结]订单已取消,无法完结 ,订单信息:{}",JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
+        }
+        order.setOrderStatus(OrderStatusEnum.FINISHED.getStatus());
+        BeanUtils.copyProperties(order,orderDTO);
+        return orderDTO;
     }
 
     /**
