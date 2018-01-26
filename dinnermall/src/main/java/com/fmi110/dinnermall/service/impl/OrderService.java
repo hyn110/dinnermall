@@ -19,6 +19,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,6 +32,8 @@ import java.util.stream.Collectors;
  * @Description: 订单操作逻辑
  * @Date 2018/1/25 22:05
  */
+@Service
+@Transactional(readOnly = true)
 public class OrderService implements IOrderService {
 
     @Autowired
@@ -46,6 +50,7 @@ public class OrderService implements IOrderService {
      *
      * @param orderDTO
      */
+    @Transactional
     @Override
     public OrderDTO create(OrderDTO orderDTO) {
         // 1 查询商品价格,库存
@@ -66,16 +71,17 @@ public class OrderService implements IOrderService {
                                      .multiply(new BigDecimal(orderDetail.getProductQuantity()))
                                      .add(orderAmount);
 
+
+            BeanUtils.copyProperties(productInfo, orderDetail); // 复制商品的相关信息
             // 设置订单 id 和 订单详情的id
             orderDetail.setOrderId(orderId);
             orderDetail.setDetailId(KeyUtils.getUniqueKey());
-            BeanUtils.copyProperties(productInfo, orderDetail); // 复制商品的相关信息
             orderDetailRepository.save(orderDetail); // 3
         }
 
         OrderMaster orderMaster = new OrderMaster();
+        BeanUtils.copyProperties(orderDTO, orderMaster); // 先拷贝,防止id amount被覆盖
         orderMaster.setOrderId(orderId);
-        BeanUtils.copyProperties(orderDTO, orderMaster);
         orderMaster.setOrderAmount(orderAmount);
         orderMaster.setPayStatus(PayStatusEnum.NOT_PAY.getStatus());
         orderMaster.setOrderStatus(OrderStatusEnum.CREATED.getStatus()); // 3
