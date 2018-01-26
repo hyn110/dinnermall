@@ -1,5 +1,6 @@
 package com.fmi110.dinnermall.service.impl;
 
+import com.fmi110.dinnermall.converter.OrderMaster2OrderDTOConverter;
 import com.fmi110.dinnermall.domain.OrderDetail;
 import com.fmi110.dinnermall.domain.OrderMaster;
 import com.fmi110.dinnermall.domain.ProductInfo;
@@ -15,12 +16,15 @@ import com.fmi110.dinnermall.repository.ProductInfoRepository;
 import com.fmi110.dinnermall.service.IOrderService;
 import com.fmi110.dinnermall.service.IProductService;
 import com.fmi110.dinnermall.utils.KeyUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,6 +38,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class OrderService implements IOrderService {
 
     @Autowired
@@ -132,17 +137,32 @@ public class OrderService implements IOrderService {
      */
     @Override
     public OrderDTO findOne(String orderId) {
-        return null;
+        // 1 查询主订单
+        // 2 根据订单id , 查询订单详情
+        OrderMaster order = orderMasterRepository.findOne(orderId);
+        if (null == order) {
+            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
+        }
+        List<OrderDetail> details = orderDetailRepository.findByOrderId(order.getOrderId());
+        if (CollectionUtils.isEmpty(details)) {
+            throw new SellException(ResultEnum.ORDERDETAIL_NOT_EXIST);
+        }
+        OrderDTO orderDTO = new OrderDTO();
+        BeanUtils.copyProperties(order,orderDTO);
+        orderDTO.setOrderDetails(details);
+        return orderDTO;
     }
 
     /**
-     * 查询指定用户的所有订单
-     *
+     * 查询指定用户的所有订单 , 这里暂时抓取订单详情信息
+     * 可以不做空判断,查不到数据,就说明客户没下订单
      * @param buyerOpenId
      */
     @Override
     public List<OrderDTO> findAllOrdersByBuyerOpenId(String buyerOpenId) {
-        return null;
+        List<OrderMaster> orders =
+                orderMasterRepository.findByBuyerOpenidOrderByCreateTimeDesc(buyerOpenId);
+        return OrderMaster2OrderDTOConverter.convert(orders);
     }
 
     /**
@@ -153,6 +173,13 @@ public class OrderService implements IOrderService {
      */
     @Override
     public Page<OrderDTO> findByBuyerOpenid(String buyerOpenId, Pageable pageable) {
-        return null;
+
+        Page<OrderMaster> orders = orderMasterRepository.findByBuyerOpenid(buyerOpenId, pageable);
+
+
+        List<OrderDTO> list = OrderMaster2OrderDTOConverter.convert(orders.getContent());
+
+        return new PageImpl<OrderDTO>(list,pageable,orders.getTotalElements());
+
     }
 }
