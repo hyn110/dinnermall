@@ -31,8 +31,8 @@ public class OrderMaster implements Serializable {
     private String     buyerName;
     @Column(name = "buyer_phone")
     private String     buyerPhone;
-    @Column(name = "buy_address")
-    private String     buyAddress;
+    @Column(name = "buyer_address")
+    private String     buyerAddress;
     @Column(name = "buyer_openid")
     private String     buyerOpenid;
     @Column(name = "order_amount")

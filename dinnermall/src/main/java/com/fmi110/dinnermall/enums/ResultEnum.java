@@ -17,7 +17,7 @@ public enum ResultEnum {
 
     ORDER_NOT_EXIST(21, "订单不存在"),
     ORDERDETAIL_NOT_EXIST(22, "订单详情不存在"),
-    ORDER_STATUS_ERROR(23, "订单状态不正确"), ORDER_PAY_STATUS_ERROR(31, "订单支付状态不对" );
+    ORDER_STATUS_ERROR(23, "订单状态不正确"), ORDER_PAY_STATUS_ERROR(31, "订单支付状态不对" ), PARAM_ERROR(1,"参数错误" ), CART_EMPTY(2,"购物车为空" );
 
     private Integer code;
     private String  message;

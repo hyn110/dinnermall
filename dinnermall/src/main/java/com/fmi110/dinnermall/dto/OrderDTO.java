@@ -17,7 +17,7 @@ public class OrderDTO {
     private String            orderId;
     private String            buyerName;
     private String            buyerPhone;
-    private String            buyAddress;
+    private String            buyerAddress;
     private String            buyerOpenid;
     private BigDecimal        orderAmount;
     private Integer           orderStatus;

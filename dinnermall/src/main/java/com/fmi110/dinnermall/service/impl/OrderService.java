@@ -96,7 +96,8 @@ public class OrderService implements IOrderService {
                                              .map(e -> new CartDTO(e.getProductId(), e.getProductQuantity()))
                                              .collect(Collectors.toList());
         productService.decreaseStock(cartDTOS);
-
+        // 将订单信息返回上层
+        BeanUtils.copyProperties(orderMaster,orderDTO);
         return orderDTO;
     }
 

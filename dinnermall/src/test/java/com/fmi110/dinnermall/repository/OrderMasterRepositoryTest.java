@@ -28,7 +28,7 @@ public class OrderMasterRepositoryTest {
     @Test
     public void save() throws Exception {
         OrderMaster order = OrderMaster.builder()
-                                       .buyAddress("幸福村")
+                                       .buyerAddress("幸福村")
                                        .buyerName("fmi110")
                                        .buyerOpenid("666")
                                        .buyerPhone("1584688888888")

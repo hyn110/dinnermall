@@ -8,6 +8,7 @@ import com.fmi110.dinnermall.domain.ProductInfo;
 import com.fmi110.dinnermall.enums.ResultEnum;
 import com.fmi110.dinnermall.service.ICategoryService;
 import com.fmi110.dinnermall.service.IProductService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  * @Description: 商品显示模块
  * @Date 2018/1/25 18:27
  */
+@Api(description = "商品显示")
 @RestController
 @RequestMapping("/buyer/product")
 public class BuyerProductController {

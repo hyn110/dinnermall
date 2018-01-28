@@ -22,7 +22,7 @@ create table if NOT EXISTS order_master
     primary key,
   buyer_name varchar(32) not null,
   buyer_phone varchar(32) not null,
-  buy_address varchar(128) not null,
+  buyer_address varchar(128) not null,
   buyer_openid varchar(64) null comment '买家微信的 openid',
   order_amount decimal(8,2) not null comment '订单总金额',
   order_status tinyint(3) default '0' not null comment '订单状态 , 默认是0 , 新下单',

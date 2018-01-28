@@ -33,7 +33,7 @@ public class OrderServiceTest {
 //        detail.setProductId("2");
 ////        detail.setProductId("22");
 //        detail.setProductQuantity(30);
-//        orderDTO.setBuyAddress("黑马");
+//        orderDTO.setBuyerAddress("黑马");
 //        orderDTO.setBuyerName("fmi110");
 //        orderDTO.setBuyerOpenid("666");
 //        orderDTO.setBuyerPhone("888888");
@@ -46,7 +46,7 @@ public class OrderServiceTest {
         detail.setProductId("3");
 //        detail.setProductId("22");
         detail.setProductQuantity(1);
-        orderDTO.setBuyAddress("传智");
+        orderDTO.setBuyerAddress("传智");
         orderDTO.setBuyerName("fmi110");
         orderDTO.setBuyerOpenid("666");
         orderDTO.setBuyerPhone("1581152328");
