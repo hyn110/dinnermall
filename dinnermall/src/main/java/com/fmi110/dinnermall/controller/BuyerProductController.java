@@ -35,7 +35,7 @@ public class BuyerProductController {
     @Autowired
     ICategoryService categoryService;
 
-    @ApiOperation("获取商品列表,按照榜单分类")
+    @ApiOperation("获取商品列表")
     @GetMapping("/list")
     public ResultVO list() {
         // 1 查询所有上架商品

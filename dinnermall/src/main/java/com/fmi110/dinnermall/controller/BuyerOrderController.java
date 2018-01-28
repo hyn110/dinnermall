@@ -30,7 +30,7 @@ import java.util.Map;
  * <p>订单详情</p>
  * @Date 2018/1/28 10:04
  */
-@Api(description = "用户订单操作相关")
+@Api(description = "买家订单操作")
 @RestController
 @Slf4j
 @RequestMapping("/buyer/order")
