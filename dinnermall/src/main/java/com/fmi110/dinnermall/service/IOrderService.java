@@ -44,4 +44,8 @@ public interface IOrderService {
     List<OrderDTO> findAllOrdersByBuyerOpenId(String buyerOpenId);
     /**分页查询指定用户的所有订单,按创建时间降序*/
     Page<OrderDTO> findByBuyerOpenid(String buyerOpenId, Pageable pageable);
+    /**查询指定用户的指定订单*/
+    OrderDTO findOne(String openid, String orderId);
+    /**取消指定用户的指定订单*/
+    void cancel(String openid, String orderId);
 }

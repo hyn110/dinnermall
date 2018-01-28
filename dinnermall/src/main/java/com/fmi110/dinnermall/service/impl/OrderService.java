@@ -125,54 +125,7 @@ public class OrderService implements IOrderService {
         return orderDTO;
     }
 
-    /**
-     * 取消订单 :
-     * <p>1 判断订单是否存在</p>
-     * <p>2 判断订单状态:已取消,已完结的不可取消</p>
-     * <p>3 修改订单状态为取消</p>
-     * <p>4 库存还原</p>
-     * <p>5 判断支付状态,如果已付款,执行退款逻辑</p>
-     *
-     * @param orderDTO
-     */
-    @Transactional
-    @Override
-    public OrderDTO cancel(OrderDTO orderDTO) {
-        //1
-        OrderMaster order = orderMasterRepository.findOne(orderDTO.getOrderId());
-        if (null == order) {
-            log.error("[取消订单]订单不存在,{}", JsonUtils.toJson(orderDTO));
-            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
-        }
-        //2
-        if (order.getOrderStatus()
-                 .equals(OrderStatusEnum.CANCEL) || order.getOrderStatus()
-                                                         .equals(OrderStatusEnum.FINISHED)) {
-            log.error("[取消订单]订单状态不正确,{}", JsonUtils.toJson(orderDTO));
-            throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
-        }
-        //3
-        order.setOrderStatus(OrderStatusEnum.CANCEL.getStatus());
-        //4
-        if (CollectionUtils.isEmpty(orderDTO.getOrderDetails())) {
-            log.error("[取消订单]没有订单明细,{}", JsonUtils.toJson(orderDTO));
-            throw new SellException(ResultEnum.ORDERDETAIL_NOT_EXIST);
-        }
-        // 修改库存是通过 cartDTO 实现的,所以这里需要把 orderDTO --> CartDTO
-        List<CartDTO> list = orderDTO.getOrderDetails()
-                                        .stream()
-                                        .map(e -> new CartDTO(e.getProductId(), e.getProductQuantity()))
-                                        .collect(Collectors.toList());
-        productService.increaseStock(list);
 
-        //5
-        if (PayStatusEnum.PAYED.getStatus()
-                               .equals(order.getPayStatus())) {
-            // TODO:执行退款
-        }
-        BeanUtils.copyProperties(order,orderDTO);
-        return orderDTO;
-    }
 
     /**
      * 完结订单
@@ -190,7 +143,7 @@ public class OrderService implements IOrderService {
             throw new SellException(ResultEnum.ORDER_NOT_EXIST);
         }
         if (order.getOrderStatus()
-                 .equals(OrderStatusEnum.CANCEL)) {
+                 .equals(OrderStatusEnum.CANCEL.getStatus())) {
             log.error("[订单完结]订单已取消,无法完结 ,订单信息:{}",JsonUtils.toJson(orderDTO));
             throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
         }
@@ -250,5 +203,102 @@ public class OrderService implements IOrderService {
 
         return new PageImpl<OrderDTO>(list,pageable,orders.getTotalElements());
 
+    }
+
+    /**
+     * 查询指定用户的指定订单
+     *
+     * @param openid
+     * @param orderId
+     */
+    @Override
+    public OrderDTO findOne(String openid, String orderId) {
+
+        OrderMaster order = orderMasterRepository.findOne(orderId);
+        if (order == null) {
+//            log.error("[查询订单]订单不存在 , orderId = {}",orderId);
+//            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
+            return null; // 不存在订单 , 查询业务时直接返回 null 即可 , 不要抛异常
+        }
+        if (!order.getBuyerOpenid()
+                  .equals(openid)) {
+            log.error("[查询订单]不是当前客户的订单 , orderId = {},openid = {}",orderId,openid);
+            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
+        }
+        return OrderMaster2OrderDTOConverter.convert(order);
+    }
+
+    /**
+     * 取消指定用户的指定订单
+     *
+     * @param openid
+     * @param orderId
+     */
+    @Transactional
+    @Override
+    public void cancel(String openid, String orderId) {
+        OrderMaster order = orderMasterRepository.findOne(orderId);
+        if (order == null) {
+            log.error("[查询订单]订单不存在 , orderId = {}",orderId);
+            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
+        }
+        if (!order.getBuyerOpenid()
+                  .equals(openid)) {
+            log.error("[查询订单]不是当前客户的订单 , orderId = {},openid = {}",orderId,openid);
+            throw new SellException(ResultEnum.ORDER_NOT_OWNED);
+        }
+        OrderDTO dto = OrderMaster2OrderDTOConverter.convert(order);
+        // 设置订单详情
+        dto.setOrderDetails(orderDetailRepository.findByOrderId(order.getOrderId()));
+        this.cancel(dto);
+    }
+
+    /**
+     * 取消订单 :
+     * <p>1 判断订单是否存在</p>
+     * <p>2 判断订单状态:已取消,已完结的不可取消</p>
+     * <p>3 修改订单状态为取消</p>
+     * <p>4 库存还原</p>
+     * <p>5 判断支付状态,如果已付款,执行退款逻辑</p>
+     *
+     * @param orderDTO
+     */
+    @Transactional
+    @Override
+    public OrderDTO cancel(OrderDTO orderDTO) {
+        //1 这里与 cancel(String openid, String orderId) 都执行了数据库查询,一级缓存的存在所以性能不影响
+        OrderMaster order = orderMasterRepository.findOne(orderDTO.getOrderId());
+        if (null == order) {
+            log.error("[取消订单]订单不存在,{}", JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
+        }
+        //2
+        if (order.getOrderStatus()
+                 .equals(OrderStatusEnum.CANCEL.getStatus()) || order.getOrderStatus()
+                                                         .equals(OrderStatusEnum.FINISHED.getStatus())) {
+            log.error("[取消订单]订单状态不正确,{}", JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
+        }
+        //3
+        order.setOrderStatus(OrderStatusEnum.CANCEL.getStatus());
+        //4
+        if (CollectionUtils.isEmpty(orderDTO.getOrderDetails())) {
+            log.error("[取消订单]没有订单明细,{}", JsonUtils.toJson(orderDTO));
+            throw new SellException(ResultEnum.ORDERDETAIL_NOT_EXIST);
+        }
+        // 修改库存是通过 cartDTO 实现的,所以这里需要把 orderDTO --> CartDTO
+        List<CartDTO> list = orderDTO.getOrderDetails()
+                                     .stream()
+                                     .map(e -> new CartDTO(e.getProductId(), e.getProductQuantity()))
+                                     .collect(Collectors.toList());
+        productService.increaseStock(list);
+
+        //5
+        if (PayStatusEnum.PAYED.getStatus()
+                               .equals(order.getPayStatus())) {
+            // TODO:执行退款
+        }
+        BeanUtils.copyProperties(order,orderDTO);
+        return orderDTO;
     }
 }
